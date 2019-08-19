@@ -1,0 +1,66 @@
+{{- if .Values.courier.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rapidpro.fullname" . }}-courier-deployment
+  labels:
+    app.kubernetes.io/name: {{ include "rapidpro.name" . }}-courier-app
+    helm.sh/chart: {{ include "rapidpro.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.courier.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rapidpro.name" . }}-courier-app
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "rapidpro.name" . }}-courier-app
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-courier-container
+          image: "{{ .Values.courier.image.repository }}:{{ .Values.courier.image.tag }}"
+          imagePullPolicy: {{ .Values.courier.image.pullPolicy }}
+          {{- if .Values.courier.command }}
+          command: {{ .Values.courier.command | toJson }}
+          {{- end }}
+          {{- if .Values.courier.args }}
+          args: {{ .Values.courier.args | toJson }}
+          {{- end }}
+          env:
+            {{- range $key, $value := .Values.courier.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+          ports:
+          {{- range $port := .Values.courier.service.ports }}
+            - name: {{ $port.name }}
+              containerPort: {{ $port.containerPort }}
+              protocol: {{ $port.protocol }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.courier.resources | nindent 12 }}
+      {{- with .Values.courier.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.courier.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.courier.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

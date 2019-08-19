@@ -1,0 +1,39 @@
+{{- if .Values.rapidpro.ingress.enabled -}}
+{{- $fullName := include "rapidpro.fullname" . -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-ingress
+  labels:
+    app.kubernetes.io/name: {{ include "rapidpro.name" . }}-app
+    helm.sh/chart: {{ include "rapidpro.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- with .Values.rapidpro.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.rapidpro.ingress.tls }}
+  tls:
+  {{- range .Values.rapidpro.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.rapidpro.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $fullName }}-service
+              servicePort: http
+        {{- end }}
+  {{- end }}
+{{- end }}

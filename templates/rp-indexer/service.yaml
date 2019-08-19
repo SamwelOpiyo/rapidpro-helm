@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rapidpro.fullname" . }}-rp-indexer-service
+  labels:
+    app.kubernetes.io/name: {{ include "rapidpro.name" . }}-rp-indexer-app
+    helm.sh/chart: {{ include "rapidpro.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.rp_indexer.service.type }}
+  ports:
+  {{- range $port := .Values.rp_indexer.service.ports }}
+    - name: {{ $port.name }}
+      port: {{ $port.containerPort }}
+      targetPort: {{ $port.containerPort }}
+      protocol: {{ $port.protocol }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "rapidpro.name" . }}-rp-indexer-app
+    app.kubernetes.io/instance: {{ .Release.Name }}

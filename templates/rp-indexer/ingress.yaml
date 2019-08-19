@@ -1,0 +1,39 @@
+{{- if .Values.rp_indexer.ingress.enabled -}}
+{{- $fullName := include "rapidpro.fullname" . -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-rp-indexer-ingress
+  labels:
+    app.kubernetes.io/name: {{ include "rapidpro.name" . }}-rp-indexer-app
+    helm.sh/chart: {{ include "rapidpro.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- with .Values.rp_indexer.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.rp_indexer.ingress.tls }}
+  tls:
+  {{- range .Values.rp_indexer.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.rp_indexer.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $fullName }}-rp-indexer-service
+              servicePort: http
+        {{- end }}
+  {{- end }}
+{{- end }}

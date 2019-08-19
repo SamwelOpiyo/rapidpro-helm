@@ -1,0 +1,12 @@
+dependencies:
+- name: elasticsearch
+  repository: https://helm.elastic.co/
+  version: 7.3.0
+- name: redis
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 9.0.2
+- name: patroni
+  repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+  version: 0.14.0
+digest: sha256:76ee3e9d648f52ce1447407f360cb3e0587aa39b84aff760b2344a1114ff285a
+generated: 2019-08-18T17:27:33.441445997+03:00

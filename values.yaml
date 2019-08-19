@@ -1,0 +1,227 @@
+# Default values for rapidpro.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+rapidpro:
+  image:
+    repository: samwelopiyo/rapidpro
+    tag: v0.2-rapidpro-v4.16.3
+    pullPolicy: Always
+  replicaCount: 1
+  command: []
+  args: []
+  env:
+    # Check options here, https://github.com/SamwelOpiyo/rapidpro-docker.
+    DJANGO_DEBUG: "on"
+    DATABASE_URL: "postgis://rapidpro_user:rapidpro_user_password@rapidpro-patroni.default.svc.cluster.local:5432/rapidpro"
+
+    MANAGEPY_COLLECTSTATIC: "on"
+    MANAGEPY_COMPRESS: "on"
+    MANAGEPY_COMPRESS: "on"
+    MANAGEPY_INIT_DB: "on"
+    MANAGEPY_MIGRATE: "on"
+
+    UWSGI_WORKERS: "2"
+    UWSGI_HARAKIRI: "20"
+
+    SEND_MESSAGES: "on"
+    SEND_EMAILS: "on"
+    SEND_WEBHOOKS: "on"
+    SEND_AIRTIME: "on"
+    SEND_CALLS: "on"
+
+    BRANDING_SLUG: "RAPIDPRO"
+    BRANDING_NAME: "RAPIDPRO"
+    BRANDING_ORG: "RAPIDPRO"
+
+    USE_RAVEN: "off"
+
+    EMAIL_BACKEND: "django.core.mail.backends.console.EmailBackend"
+    EMAIL_HOST: "localhost"
+    EMAIL_PORT: "1025"
+    # EMAIL_HOST_USER: # Defaults to server@temba.io
+    # DEFAULT_FROM_EMAIL: # Defaults to server@temba.io
+    # EMAIL_HOST_PASSWORD: # Defaults to mypassword
+    # EMAIL_USE_TLS: # Set to off to disable, defaults to on
+
+    # DOMAIN_NAME: "sms.rapidpro.info"
+    # TEMBA_HOST: "sms.rapidpro.info"
+    # ALLOWED_HOSTS: ""
+    # SECRET_KEY: "*skd2!_8o@f1h&3lfrhwk1y7z$$fql)tn=r*b6*_t(t&t^x=h+"
+    # ELASTICSEARCH_URL: "http://rapidpro-elasticsearch-client.default.svc.cluster.local:9200"
+    # BROKER_URL: "redis://redis-master.default.svc.cluster.local:6379/0"
+    # CELERY_RESULT_BACKEND: "redis://redis-master.default.svc.cluster.local:6379/0"
+    # REDIS_URL: "redis://redis-master.default.svc.cluster.local:6379/0,redis://redis-slave.default.svc.cluster.local:6379/0"
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    ports:
+      - name: "http"
+        protocol: TCP
+        containerPort: 8000
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths: ["/"]
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+celery:
+  enabled: true
+  image:
+    repository: samwelopiyo/rapidpro
+    tag: v0.2-rapidpro-v4.16.3
+    pullPolicy: Always
+  replicaCount: 1
+  celery_base_command: ["/venv/bin/celery", "--beat", "--app=temba", "worker", "--loglevel=INFO", "--queues=celery,flows"]
+  celery_base_args: []
+  celery_messages_command: ["/venv/bin/celery", "--app=temba", "worker", "--loglevel=INFO", "--queues=msgs,handler"]
+  celery_messages_args: []
+  env: {}
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+
+courier:
+  enabled: true
+  image:
+    repository: praekeltfoundation/courier
+    tag: latest
+    pullPolicy: Always
+  replicaCount: 1
+  command: ["courier", "-log-level", "info", "-debug-conf"]
+  args: []
+  env:
+    COURIER_DB: "postgres://rapidpro_user:rapidpro_user_password@rapidpro-patroni.default.svc.cluster.local:5432/rapidpro"  # ?sslmode=disable
+    COURIER_REDIS: "redis://redis-master.default.svc.cluster.local:6379/0"
+    COURIER_DOMAIN: "sms.rapidpro.info"
+    COURIER_SPOOL_DIR: "/tmp/courier/"
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    ports:
+      - name: "http"
+        protocol: TCP
+        containerPort: 8080
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths: ["/c/"]
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+rp_indexer:
+  enabled: true
+  image:
+    repository: praekeltfoundation/rp-indexer
+    tag: latest
+    pullPolicy: Always
+  replicaCount: 1
+  command: []
+  args: []
+  env:
+    INDEXER_DB: "postgres://rapidpro_user:rapidpro_user_password@rapidpro-patroni.default.svc.cluster.local:5432/rapidpro"  # ?sslmode=disable
+    INDEXER_ELASTIC_URL: "http://rapidpro-elasticsearch-client.default.svc.cluster.local:9200"
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    ports:
+      - name: "http"
+        protocol: TCP
+        containerPort: 8080
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths: ["/"]
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+elasticsearch:
+  enabled: true
+
+
+redis:
+  enabled: true
+  usePassword: false
+
+
+patroni:
+  enabled: true
+  env:
+    PATRONI_rapidpro_user_PASSWORD: "rapidpro_user_password"
+    PATRONI_rapidpro_user_OPTIONS: "createrole,createdb,createextension"  # superuser

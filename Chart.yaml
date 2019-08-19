@@ -1,0 +1,13 @@
+apiVersion: v1
+appVersion: v4.16.3
+description: A RapidPro Helm chart for Kubernetes.
+icon: https://raw.githubusercontent.com/rapidpro/rapidpro/master/static/brands/rapidpro/logo.png
+name: rapidpro
+version: 0.1.0
+home: https://rapidpro.github.io/rapidpro/
+sources:
+- https://github.com/SamwelOpiyo/rapidpro-docker
+- https://github.com/rapidpro/rapidpro
+maintainers:
+- name: SamwelOpiyo
+  email: samonyango20@gmail.com
