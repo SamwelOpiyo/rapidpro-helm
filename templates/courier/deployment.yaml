@@ -31,6 +31,7 @@ spec:
           args: {{ .Values.courier.args | toJson }}
           {{- end }}
           env:
+            {{- include "courier.dependency_envs" . | nindent 10 }}
             {{- range $key, $value := .Values.courier.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}

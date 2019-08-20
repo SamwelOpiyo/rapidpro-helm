@@ -107,3 +107,33 @@ Set patroni service host.
     value: "redis://{{ include "redis.master_service_host" . }}:6379/0,redis://{{ include "redis.slave_service_host" . }}:6379/0"
   {{- end -}}
 {{- end -}}
+
+
+{{/*
+  Set environment variables that will enable courier use installed dependencies.
+*/}}
+{{- define "courier.dependency_envs" }}
+  {{- if and .Values.courier.ingress.enabled }}
+    {{- range $index, $host := .Values.courier.ingress.hosts -}}
+      {{- if and $host.host (eq $index 0) }}
+  - name: COURIER_DOMAIN
+    value: {{ $host.host }}
+      {{- end -}}
+    {{ end }}
+  {{- end }}
+  {{- if include "redis.master_service_host" . }}
+  - name: COURIER_REDIS
+    value: "redis://{{ include "redis.master_service_host" . }}:6379/0"
+  {{- end }}
+{{- end -}}
+
+
+{{/*
+  Set environment variables that will enable rp-indexer use installed dependencies.
+*/}}
+{{- define "rp-indexer.dependency_envs" }}
+  {{- if include "elasticsearch.service_host" . }}
+  - name: INDEXER_ELASTIC_URL
+    value: "http://{{ include "elasticsearch.service_host" . }}:9200"
+  {{- end }}
+{{- end -}}

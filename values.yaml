@@ -128,9 +128,9 @@ courier:
   args: []
   env:
     COURIER_DB: "postgres://rapidpro_user:rapidpro_user_password@rapidpro-patroni.default.svc.cluster.local:5432/rapidpro"  # ?sslmode=disable
-    COURIER_REDIS: "redis://redis-master.default.svc.cluster.local:6379/0"
-    COURIER_DOMAIN: "sms.rapidpro.info"
     COURIER_SPOOL_DIR: "/tmp/courier/"
+    # COURIER_REDIS: "redis://redis-master.default.svc.cluster.local:6379/0"
+    # COURIER_DOMAIN: "sms.rapidpro.info"
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
@@ -176,7 +176,7 @@ rp_indexer:
   args: []
   env:
     INDEXER_DB: "postgres://rapidpro_user:rapidpro_user_password@rapidpro-patroni.default.svc.cluster.local:5432/rapidpro"  # ?sslmode=disable
-    INDEXER_ELASTIC_URL: "http://rapidpro-elasticsearch-client.default.svc.cluster.local:9200"
+    # INDEXER_ELASTIC_URL: "http://rapidpro-elasticsearch-client.default.svc.cluster.local:9200"
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
